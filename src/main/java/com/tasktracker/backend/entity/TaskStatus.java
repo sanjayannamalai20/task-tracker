@@ -1,5 +1,7 @@
 package com.tasktracker.backend.entity;
 
-public class TaskStatus {
-    
+public enum TaskStatus {
+    TODO,
+    DOING,
+    DONE
 }

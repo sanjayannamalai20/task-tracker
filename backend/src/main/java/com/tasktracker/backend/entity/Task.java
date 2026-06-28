@@ -52,9 +52,10 @@ public class Task {
 
     private LocalDateTime updatedAt;
 
-    @JsonBackReference
+    
     @ManyToOne
     @JoinColumn(name = "project_id")
+    @JsonBackReference
     private Project project;
 
     @PrePersist

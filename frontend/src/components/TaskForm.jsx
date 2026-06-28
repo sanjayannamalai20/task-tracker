@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { createTask, getProjects } from "../api/taskApi";
+import { createTask, updateTask, getProjects } from "../api/taskApi";
 
-function TaskForm() {
+function TaskForm({ editingTask, onFinish }) {
   const [projects, setProjects] = useState([]);
 
   const [task, setTask] = useState({
@@ -18,6 +18,22 @@ function TaskForm() {
   useEffect(() => {
     loadProjects();
   }, []);
+
+  useEffect(() => {
+    if (editingTask) {
+      setTask({
+        id: editingTask.id,
+        title: editingTask.title,
+        description: editingTask.description,
+        status: editingTask.status,
+        priority: editingTask.priority,
+        dueDate: editingTask.dueDate,
+        project: {
+          id: editingTask.project?.id || "",
+        },
+      });
+    }
+  }, [editingTask]);
 
   const loadProjects = async () => {
     try {
@@ -50,9 +66,13 @@ function TaskForm() {
     e.preventDefault();
 
     try {
-      await createTask(task);
-
-      alert("Task Added Successfully");
+      if (editingTask) {
+        await updateTask(editingTask.id, task);
+        alert("Task Updated Successfully");
+      } else {
+        await createTask(task);
+        alert("Task Added Successfully");
+      }
 
       setTask({
         title: "",
@@ -64,18 +84,21 @@ function TaskForm() {
           id: "",
         },
       });
+
+      if (onFinish) {
+        onFinish();
+      }
     } catch (error) {
       console.error(error);
-      alert("Failed to add task");
+      alert("Operation Failed");
     }
   };
 
   return (
     <div className="card p-4 mt-4">
-      <h2>Add Task</h2>
+      <h2>{editingTask ? "Edit Task" : "Add Task"}</h2>
 
       <form onSubmit={handleSubmit}>
-
         <div className="mb-3">
           <label>Title</label>
           <input
@@ -100,7 +123,6 @@ function TaskForm() {
 
         <div className="mb-3">
           <label>Status</label>
-
           <select
             className="form-select"
             name="status"
@@ -115,7 +137,6 @@ function TaskForm() {
 
         <div className="mb-3">
           <label>Priority</label>
-
           <select
             className="form-select"
             name="priority"
@@ -130,7 +151,6 @@ function TaskForm() {
 
         <div className="mb-3">
           <label>Due Date</label>
-
           <input
             type="date"
             className="form-control"
@@ -142,7 +162,6 @@ function TaskForm() {
 
         <div className="mb-3">
           <label>Project</label>
-
           <select
             className="form-select"
             name="projectId"
@@ -153,10 +172,7 @@ function TaskForm() {
             <option value="">Select Project</option>
 
             {projects.map((project) => (
-              <option
-                key={project.id}
-                value={project.id}
-              >
+              <option key={project.id} value={project.id}>
                 {project.name}
               </option>
             ))}
@@ -164,9 +180,8 @@ function TaskForm() {
         </div>
 
         <button className="btn btn-success">
-          Save Task
+          {editingTask ? "Update Task" : "Save Task"}
         </button>
-
       </form>
     </div>
   );

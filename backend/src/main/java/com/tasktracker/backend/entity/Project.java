@@ -1,5 +1,4 @@
 package com.tasktracker.backend.entity;
-
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -34,7 +33,8 @@ public class Project {
 
     private String description;
 
-    @JsonManagedReference
+   
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+     @JsonManagedReference
     private List<Task> tasks;
 }

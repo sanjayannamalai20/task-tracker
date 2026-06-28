@@ -1,11 +1,23 @@
-import { useState } from "react";
-import { createProject } from "../api/taskApi";
+import { useState, useEffect } from "react";
+import {
+  createProject,
+  updateProject,
+} from "../api/taskApi";
 
-function ProjectForm() {
+function ProjectForm({ editingProject, onFinish }) {
   const [project, setProject] = useState({
     name: "",
     description: "",
   });
+
+  useEffect(() => {
+    if (editingProject) {
+      setProject({
+        name: editingProject.name,
+        description: editingProject.description,
+      });
+    }
+  }, [editingProject]);
 
   const handleChange = (e) => {
     setProject({
@@ -18,34 +30,37 @@ function ProjectForm() {
     e.preventDefault();
 
     try {
-      await createProject(project);
-
-      alert("Project Added Successfully");
+      if (editingProject) {
+        await updateProject(editingProject.id, project);
+        alert("Project Updated Successfully");
+      } else {
+        await createProject(project);
+        alert("Project Added Successfully");
+      }
 
       setProject({
         name: "",
         description: "",
       });
 
-      window.location.reload();
+      if (onFinish) {
+        onFinish();
+      }
     } catch (error) {
       console.error(error);
-      alert("Failed to add project");
+      alert("Operation Failed");
     }
   };
 
   return (
     <div className="card p-4">
-      <h2 className="mb-3">Add Project</h2>
+      <h2>{editingProject ? "Edit Project" : "Add Project"}</h2>
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label">
-            Project Name
-          </label>
+          <label>Project Name</label>
 
           <input
-            type="text"
             className="form-control"
             name="name"
             value={project.name}
@@ -55,9 +70,7 @@ function ProjectForm() {
         </div>
 
         <div className="mb-3">
-          <label className="form-label">
-            Description
-          </label>
+          <label>Description</label>
 
           <textarea
             className="form-control"
@@ -69,7 +82,7 @@ function ProjectForm() {
         </div>
 
         <button className="btn btn-primary">
-          Save Project
+          {editingProject ? "Update Project" : "Save Project"}
         </button>
       </form>
     </div>

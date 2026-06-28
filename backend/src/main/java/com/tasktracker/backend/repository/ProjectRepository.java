@@ -1,0 +1,8 @@
+package com.tasktracker.backend.repository;
+
+import com.tasktracker.backend.entity.Project;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+
+}
